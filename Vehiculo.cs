@@ -1,61 +1,79 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace ConsoleApp_14_09_2026
 {
     internal class Vehiculo
     {
-        public string modelo { get; set; }
-        public string color { get; set; }
-        public string matricula { get; set; }
-        public double nivelCombustible { get; set; }
-        public string descripcionProblema { get; set; }
-        public bool estaEncendido { get; private set; }
-        public int velocidad { get; private set; }
+        public string Marca { get; private set; }
+        public string Modelo { get; private set; }
+        public string Color { get; private set; }
+        public string Matricula { get; private set; }
+        public double NivelCombustible { get; private set; }
+        public bool EstaEncendido { get; private set; }
+        public int Velocidad { get; private set; }
 
-        public Vehiculo(string modelo, string color, string matricula, double nivelCombustible, string descripcionProblema)
+        public Vehiculo(string marca, string modelo, string color, string matricula, double nivelCombustible)
         {
-            this.modelo = modelo;
-            this.color = color;
-            this.matricula = matricula;
-            this.nivelCombustible = nivelCombustible;
-            this.descripcionProblema = descripcionProblema;
-            this.estaEncendido = false;
-            this.velocidad = 0;
-        }
+            if (string.IsNullOrWhiteSpace(marca))
+                throw new ArgumentException("La marca es obligatoria.", "marca");
+            if (string.IsNullOrWhiteSpace(modelo))
+                throw new ArgumentException("El modelo es obligatorio.", "modelo");
+            if (string.IsNullOrWhiteSpace(color))
+                throw new ArgumentException("El color es obligatorio.", "color");
+            if (string.IsNullOrWhiteSpace(matricula))
+                throw new ArgumentException("La matrícula es obligatoria.", "matricula");
+            if (nivelCombustible < 0 || nivelCombustible > 100)
+                throw new ArgumentOutOfRangeException("nivelCombustible", "El combustible debe estar entre 0 y 100 %.");
 
-        public void mostrarReporte()
-        {
-            Console.WriteLine("++Reporte del Vehiculo++");
-            Console.WriteLine($"Modelo {modelo}");
-            Console.WriteLine($"Color {color}");
-            Console.WriteLine($"Matricula {matricula}");
-            Console.WriteLine($"Nivel combustible: {nivelCombustible}%");
-            Console.WriteLine($"Descripcion del problema: {descripcionProblema}");
-            string estado = ((estaEncendido == true) ? "Si" : "No");
-            Console.WriteLine($"Esta encendido: {estado}");
-            Console.WriteLine($"Velocidad actual: {velocidad}\n");
-        }
-        public void encender()
-        {
-            estaEncendido = true;
-        }
-        public void apagar()
-        {
-            estaEncendido = false;
+            Marca = marca;
+            Modelo = modelo;
+            Color = color;
+            Matricula = matricula;
+            NivelCombustible = nivelCombustible;
+            EstaEncendido = false;
+            Velocidad = 0;
         }
 
-        public void acelerar()
+        public void MostrarReporte()
         {
-            velocidad += 10;
+            Console.WriteLine("--- Estado del vehículo ---");
+            Console.WriteLine("Marca: {0}", Marca);
+            Console.WriteLine("Modelo: {0}", Modelo);
+            Console.WriteLine("Color: {0}", Color);
+            Console.WriteLine("Matrícula: {0}", Matricula);
+            Console.WriteLine("Combustible: {0}%", NivelCombustible);
+            Console.WriteLine("Motor encendido: {0}", EstaEncendido ? "Sí" : "No");
+            Console.WriteLine("Velocidad: {0} km/h", Velocidad);
         }
-        public void frenar()
+
+        public void Encender()
         {
-            velocidad = 0;
+            if (NivelCombustible <= 0)
+                throw new InvalidOperationException("No se puede encender el vehículo sin combustible.");
+
+            EstaEncendido = true;
+        }
+
+        public void Apagar()
+        {
+            if (Velocidad > 0)
+                throw new InvalidOperationException("No se puede apagar el motor mientras el vehículo está en movimiento.");
+
+            EstaEncendido = false;
+        }
+
+        public void Acelerar(int incremento)
+        {
+            if (!EstaEncendido)
+                throw new InvalidOperationException("Es necesario encender el motor antes de acelerar.");
+            if (incremento <= 0)
+                throw new ArgumentOutOfRangeException("incremento", "El incremento debe ser mayor que cero.");
+
+            Velocidad += incremento;
+        }
+
+        public void Frenar()
+        {
+            Velocidad = 0;
         }
     }
 }

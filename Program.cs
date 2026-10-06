@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
+using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConsoleApp_14_09_2026
 {
@@ -11,80 +9,117 @@ namespace ConsoleApp_14_09_2026
     {
         static void Main(string[] args)
         {
-
-            Console.Write("Ingrese el modelo del vehículo: ");
-            string modelo = Console.ReadLine();
-
-            Console.Write("Ingrese el color: ");
-            string color = Console.ReadLine();
-
-            Console.Write("Ingrese la matricula: ");
-            string matricula = Console.ReadLine();
-
-            Console.Write("Ingrese el nivel de combustible: ");
-            int nivelCombustible = int.Parse(Console.ReadLine());
-
-            Console.Write("Ingrese descripcion del problema: ");
-            string descripcionProblema = Console.ReadLine();
-
-
-            Vehiculo v1 = new Vehiculo(modelo, color, matricula, nivelCombustible, descripcionProblema);
-
+            List<Reparacion> reparaciones = new List<Reparacion>();
+            int siguienteNumeroTicket = 1;
             bool salir = false;
-            while (!salir){
-                Console.WriteLine("\n==============================");
-                Console.WriteLine($" PANEL DE CONTROL: {modelo} [{matricula}]");
-                Console.WriteLine("==============================");
-                Console.WriteLine("1. Mostrar reporte de estado");
-                Console.WriteLine("2. Encender vehículo");
-                Console.WriteLine("3. Apagar vehículo");
-                Console.WriteLine("4. Acelerar");
-                Console.WriteLine("5. Frenar");
-                Console.WriteLine("6. Salir");
-                Console.Write("Seleccione una opción (1-6): ");
 
-                string opcion = Console.ReadLine();
-                Console.WriteLine();
+            Console.WriteLine("Taller mecánico \"El Rápido\"");
+            Console.WriteLine("Registro y consulta de tickets de reparación.\n");
 
-                switch (opcion)
+            while (!salir)
+            {
+                Console.WriteLine("1. Registrar una reparación");
+                Console.WriteLine("2. Consultar un ticket");
+                Console.WriteLine("3. Salir");
+                Console.Write("Seleccione una opción: ");
+
+                switch (Console.ReadLine())
                 {
                     case "1":
-                        v1.mostrarReporte();
+                        RegistrarReparacion(reparaciones, siguienteNumeroTicket);
+                        siguienteNumeroTicket++;
                         break;
                     case "2":
-                        v1.encender();
-                        v1.mostrarReporte();
+                        ConsultarReparacion(reparaciones);
                         break;
                     case "3":
-                        v1.apagar();
-                        v1.mostrarReporte();
-                        break;
-                    case "4":
-                        v1.acelerar();
-                        v1.mostrarReporte();
-                        break;
-                    case "5":
-                        v1.frenar();
-                        v1.mostrarReporte();
-                        break;
-                    case "6":
                         salir = true;
-                        Console.WriteLine("Cerrando el panel de control...");
+                        Console.WriteLine("Gracias por utilizar el sistema de El Rápido.");
                         break;
                     default:
-                        Console.WriteLine("Opción no válida. Intente nuevamente.");
+                        Console.WriteLine("Opción no válida. Seleccione 1, 2 o 3.\n");
                         break;
                 }
             }
+        }
 
+        private static void RegistrarReparacion(List<Reparacion> reparaciones, int numeroTicket)
+        {
+            Console.WriteLine("\n--- Datos del cliente ---");
+            string nombre = LeerTexto("Nombre: ");
+            string telefono = LeerTexto("Teléfono de contacto: ");
 
+            Console.WriteLine("\n--- Datos del vehículo ---");
+            string marca = LeerTexto("Marca: ");
+            string modelo = LeerTexto("Modelo: ");
+            string color = LeerTexto("Color: ");
+            string matricula = LeerTexto("Matrícula: ");
+            double nivelCombustible = LeerNivelCombustible();
+            string descripcionAveria = LeerTexto("Describa la avería: ");
 
+            Usuario cliente = new Usuario(nombre, telefono);
+            Vehiculo vehiculo = new Vehiculo(marca, modelo, color, matricula, nivelCombustible);
+            Reparacion reparacion = new Reparacion(numeroTicket, cliente, vehiculo, descripcionAveria);
+            reparaciones.Add(reparacion);
 
-            //Usuario usuario1 = new Usuario();
-            //Usuario usuario2 = new Usuario("Bob");
+            Console.WriteLine("\nSolicitud registrada. Su número de ticket es: {0}\n", reparacion.NumeroTicket);
+        }
 
-            //Console.WriteLine($"Usuario 1: {usuario1.nombre}");
-            //Console.WriteLine($"Usuario 2: {usuario2.nombre}");
+        private static void ConsultarReparacion(List<Reparacion> reparaciones)
+        {
+            if (reparaciones.Count == 0)
+            {
+                Console.WriteLine("Todavía no hay tickets registrados.\n");
+                return;
+            }
+
+            Console.Write("Introduzca el número de ticket: ");
+            int numeroTicket;
+            if (!int.TryParse(Console.ReadLine(), out numeroTicket))
+            {
+                Console.WriteLine("El número de ticket no es válido.\n");
+                return;
+            }
+
+            Reparacion reparacion = reparaciones.FirstOrDefault(r => r.NumeroTicket == numeroTicket);
+            if (reparacion == null)
+            {
+                Console.WriteLine("No se encontró un ticket con ese número.\n");
+                return;
+            }
+
+            Console.WriteLine();
+            reparacion.MostrarDetalle();
+            Console.WriteLine();
+        }
+
+        private static string LeerTexto(string mensaje)
+        {
+            string valor;
+            do
+            {
+                Console.Write(mensaje);
+                valor = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(valor))
+                    Console.WriteLine("Este dato es obligatorio.");
+            }
+            while (string.IsNullOrWhiteSpace(valor));
+
+            return valor.Trim();
+        }
+
+        private static double LeerNivelCombustible()
+        {
+            double nivel;
+            while (true)
+            {
+                Console.Write("Nivel de combustible (0-100 %): ");
+                string entrada = Console.ReadLine();
+                if (double.TryParse(entrada, NumberStyles.Number, CultureInfo.CurrentCulture, out nivel) && nivel >= 0 && nivel <= 100)
+                    return nivel;
+
+                Console.WriteLine("Introduzca un número entre 0 y 100.");
+            }
         }
     }
 }

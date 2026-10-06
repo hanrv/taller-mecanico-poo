@@ -1,29 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace ConsoleApp_14_09_2026
 {
     internal class Usuario
     {
-        public string nombre { get; set; }
-        public int edad { get; set; }
+        public string Nombre { get; private set; }
+        public string Telefono { get; private set; }
 
-        public Usuario(string nombre = "Guest")
+        public Usuario(string nombre, string telefono)
         {
-            this.nombre = nombre;
-        }
+            if (string.IsNullOrWhiteSpace(nombre))
+                throw new ArgumentException("El nombre del cliente es obligatorio.", "nombre");
+            if (string.IsNullOrWhiteSpace(telefono))
+                throw new ArgumentException("El teléfono del cliente es obligatorio.", "telefono");
 
-        public void ModificarEdad(int nuevaEdad)
-        {
-            edad = nuevaEdad;
-        }
-
-        public void CumplirAnios()
-        {
-            edad++;
+            Nombre = nombre;
+            Telefono = telefono;
         }
     }
 }
